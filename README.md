@@ -102,6 +102,8 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 | `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
 | `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
 | `RESOLVER_URL`       | _(empty)_                     | Optional media resolver for arbitrary page URLs (see below).       |
+| `YTDLP_ONLINE`       | _(empty)_                     | Enable the ytdlp.online universal resolver (any site yt-dlp supports). |
+| `YTDLP_ONLINE_COOKIE`| _(empty)_                     | Optional `ytdlp.online` session cookie (`_sid=...`).              |
 
 ---
 
@@ -228,11 +230,19 @@ RESOLVER_URL=http://<your-host>:8787
 This keeps `yavot-api` itself thin (and serverless-friendly) while offloading the heavy
 `yt-dlp` work to a separate host you control.
 
+**Universal resolver via ytdlp.online (zero-infra).** Set `YTDLP_ONLINE=1` to let the API
+resolve *any* site that [yt-dlp](https://github.com/yt-dlp/yt-dlp) supports — with no VPS and
+no binary. It calls `https://ytdlp.online/api/v1/stream`, decodes the SSE console output, and
+returns a **re-hosted file URL** on `ytdlp.online` (publicly fetchable, so Yandex can grab it
+directly — no IP/geo locks). Optional: `YTDLP_ONLINE_COOKIE` (`_sid=...`) if the service
+requires a session. This is the recommended option for full automation from a serverless
+deployment (e.g. Vercel), since Vercel can't run the `yt-dlp` binary itself.
+
 **Natively supported sites:** ~80 platforms (YouTube, Vimeo, Twitch, VK, OK.ru, Bilibili,
 Dailymotion, Rutube, TikTok/Douyin, Rumble, Facebook, Twitter/X, IMDB, Coursera, Udemy,
 LinkedIn Learning, and many more) are resolved automatically from a plain page URL — see
-[SUPPORTED_SITES.md](./SUPPORTED_SITES.md) for the full list. Additionally, any site that
-[yt-dlp](https://github.com/yt-dlp/yt-dlp) can handle works via the resolver above.
+[SUPPORTED_SITES.md](./SUPPORTED_SITES.md) for the full list. With `YTDLP_ONLINE=1`, every
+other yt-dlp-compatible site is translatable from a bare page URL as well.
 
 ---
 

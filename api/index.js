@@ -2,6 +2,9 @@ import VOTClient from "@vot.js/node";
 import { getVideoData } from "@vot.js/node/utils/videoData";
 import { makeClient } from "../lib/client.js";
 import { resolveMediaUrl } from "../lib/resolver.js";
+import { resolveViaYtdlpOnline } from "../lib/ytdlpOnline.js";
+
+export const maxDuration = 60;
 
 const DEFAULT_REQ_LANG = "auto";
 const DEFAULT_RES_LANG = "ru";
@@ -137,6 +140,21 @@ export default async function handler(req, res) {
             error: "Media resolution failed",
             detail: String(e.message || e),
             hint: "Pass 'directUrl' explicitly, or ensure RESOLVER_URL is reachable.",
+          });
+        }
+      } else if (!isDirect && !isYouTube && process.env.YTDLP_ONLINE) {
+        // Universal resolver via ytdlp.online (online yt-dlp wrapper). Works for any
+        // site yt-dlp supports; returns a re-hosted file URL Yandex can fetch directly.
+        try {
+          effectiveDirect = await resolveViaYtdlpOnline(url, {
+            cookie: process.env.YTDLP_ONLINE_COOKIE || "",
+            timeoutMs: 45000,
+          });
+        } catch (e) {
+          return json(res, 502, {
+            error: "ytdlp.online resolution failed",
+            detail: String(e.message || e),
+            hint: "Pass 'directUrl' explicitly, or check YTDLP_ONLINE_COOKIE.",
           });
         }
       }
