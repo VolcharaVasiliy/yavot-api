@@ -1,0 +1,14 @@
+{
+  "name": "yavot-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Universal proxy API for Yandex VOT (video translation / TTS) built on @vot.js/node, ready for Vercel.",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  },
+  "dependencies": {
+    "@vot.js/node": "^3.0.2"
+  }
+}
