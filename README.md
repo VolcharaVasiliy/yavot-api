@@ -96,17 +96,15 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 
 ### Environment variables (`.env`)
 
-These are optional unless noted. On Cloudflare they are already declared (empty) in
-`wrangler.toml` so the deploy page will not force you to fill them; set the secret ones via
-`wrangler secret put`.
-
-- `YAVOT_PROXY` — HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Unset → direct. Set to `off` to force direct.
-- `YANDEX_SESSION_ID` — `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice.
-- `YANDEX_API_TOKEN` — Yandex OAuth token → enables lively voice (alternative to the cookie). **Not required** when using cookies.
-- `POLL_BUDGET_MS` — max ms the API blocks while polling inside a single request (default `9000`).
-- `RESOLVER_URL` — optional media resolver for arbitrary page URLs (see below).
-- `YTDLP_ONLINE` — set to `1` to enable the ytdlp.online universal resolver (any site yt-dlp supports).
-- `YTDLP_ONLINE_COOKIE` — optional `ytdlp.online` session cookie (`_sid=...`).
+| Variable             | Default                       | Description                                                        |
+| -------------------- | ----------------------------- | ------------------------------------------------------------------ |
+| `YAVOT_PROXY`        | _(unset → direct)_            | HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Set to `off` to force direct. |
+| `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice. |
+| `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
+| `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
+| `RESOLVER_URL`       | _(empty)_                     | Optional media resolver for arbitrary page URLs (see below).       |
+| `YTDLP_ONLINE`       | _(empty)_                     | Enable the ytdlp.online universal resolver (any site yt-dlp supports). |
+| `YTDLP_ONLINE_COOKIE`| _(empty)_                     | Optional `ytdlp.online` session cookie (`_sid=...`).              |
 
 ---
 
@@ -128,30 +126,16 @@ if you need them. Preview deployments are Vercel-auth protected; production is p
 ### Cloudflare Workers
 
 This repo ships a Cloudflare Worker (`worker.mjs` + `wrangler.toml`, Node.js compat) that
-reuses the same core as the Vercel deployment.
-
-**One-click (button above):** opens Cloudflare's deploy page, which lists the Worker's
-environment variables. `YANDEX_API_TOKEN` (and others) are **optional** — they're pre-filled
-with empty defaults in `wrangler.toml`, so just leave them blank and finish the deploy
-(no Yandex token needed when you authenticate by cookies).
-
-**CLI (no token paste, browser OAuth):**
+reuses the same core as the Vercel deployment. Use the one-click button above, or:
 
 ```bash
 npm install
-npx wrangler login      # one-time browser auth
 npx wrangler deploy
 ```
 
-Set secrets (optional, for lively voice / resolver):
-
-```bash
-npx wrangler secret put YANDEX_SESSION_ID   # value = your Session_id cookie
-npx wrangler secret put YTDLP_ONLINE_COOKIE  # optional ytdlp.online _sid
-```
-
-`YANDEX_API_TOKEN` is **not** required when using cookies. The universal resolver is enabled
-by setting `YTDLP_ONLINE = "1"` under `[vars]` in `wrangler.toml` (or as a secret).
+Set secrets (optional): `npx wrangler secret put YANDEX_SESSION_ID` and
+`npx wrangler secret put YTDLP_ONLINE_COOKIE`. Enable the universal resolver by adding
+`YTDLP_ONLINE = "1"` under `[vars]` in `wrangler.toml` (or as a secret).
 
 ---
 
