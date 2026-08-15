@@ -1,0 +1,237 @@
+# yavot-api
+
+> Universal proxy API for **Yandex VOT** (Video OverTranslation) — free neural video
+> translation / text-to-speech — built on top of [`@vot.js/node`](https://github.com/FOSWLY/vot.js).
+
+This is a small, dependency-light HTTP API that wraps Yandex's internal video-translation
+service so you can drop it into **any app, script, or browser extension** with a single
+`POST` request. It handles the protobuf encoding, HMAC request signing, session creation,
+and the polling/audio-upload dance that Yandex requires — all behind a clean JSON interface.
+
+- Translate any **YouTube** video (and many other sites) to a dubbed audio track.
+- Optional **"lively voice"** mode (neural voice cloning) — requires a logged-in Yandex account.
+- Optional **HTTP(S) proxy** support (e.g. Clash) for routing egress.
+- **CORS-open** — callable directly from the browser.
+- **Vercel-ready** — deploy as a serverless function in seconds.
+
+---
+
+## ⚠️ Rules of use
+
+This project is provided **for educational and research purposes only**. By using it you agree:
+
+1. **Not affiliated with Yandex.** This is an unofficial, reverse-engineered client. All
+   rights to the original software belong to their respective owners.
+2. **Respect Yandex Terms of Service.** Do not use this for commercial purposes, spam, or
+   anything that violates Yandex's terms. Obtain proper permission for any production use.
+3. **Self-limit / be a good citizen.** Yandex may rate-limit or block abusive traffic. Add
+   your own throttling, cache results, and don't hammer the endpoint.
+4. **Use at your own risk.** No warranty, express or implied. Translations depend entirely on
+   Yandex's backend, which can change or block access at any time (including per-IP or
+   per-account limits).
+5. **Protect credentials.** If you enable "lively voice", keep your `Session_id` / OAuth token
+   secret. Never commit them. Prefer environment variables.
+6. **Don't harm others.** Don't expose an open proxy that lets third parties burn *your*
+   account quota or IP reputation without their knowledge.
+
+The maintainers are not responsible for any issues arising from the use of this software.
+
+---
+
+## How it works
+
+```
+client ──POST /translate──▶ yavot-api ──protobuf+HMAC──▶ api.browser.yandex.ru
+                                │                            │
+                                │  poll until FINISHED       │ (Yandex translates,
+                                ◀───────────────────────────│  stores audio on S3)
+                          { audioUrl, status }
+```
+
+1. `yavot-api` opens a signed session (`/session/create`, HMAC-SHA256).
+2. It sends a protobuf `VideoTranslationRequest` for the URL.
+3. Yandex either returns a finished dubbing URL, or `WAITING` with a `remainingTime`
+   (the API returns that to you — **you poll** until it's ready).
+4. For brand-new YouTube videos Yandex may ask the client to upload the source audio; the
+   library handles this automatically.
+
+> **Why a proxy?** Yandex's balancer rejects requests that carry the browser-specific
+> `sec-fetch-mode` header. The API strips it (via `VOTAgent`/`VOTProxyAgent`) so the request
+> is accepted. A proxy is optional and only needed if your egress IP is restricted.
+
+---
+
+## Requirements
+
+- **Node.js 18+** (developed on Node 24).
+- For **"lively voice"** (voice cloning): a Yandex account session — either a
+  `Session_id` cookie (from a logged-in Yandex Browser / Chrome export) or an OAuth token
+  from <https://oauth.yandex.ru>.
+
+---
+
+## Installation
+
+```bash
+git clone <your-fork>
+cd yavot-api
+npm install
+```
+
+---
+
+## Local usage
+
+```bash
+npm start                 # serves http://localhost:3000
+```
+
+Quick manual test (auto-loads `Session_id` from a `cookies.txt` on your Desktop if present):
+
+```bash
+node test-translate.mjs "https://youtu.be/VIDEO_ID"            # classic voice
+node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone voice
+```
+
+### Environment variables (`.env`)
+
+| Variable             | Default                       | Description                                                        |
+| -------------------- | ----------------------------- | ------------------------------------------------------------------ |
+| `YAVOT_PROXY`        | _(unset → direct)_            | HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Set to `off` to force direct. |
+| `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value → enables lively voice.                  |
+| `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
+| `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
+
+---
+
+## Deploy to Vercel
+
+```bash
+vercel deploy --prod --yes
+```
+
+The `api/` directory is auto-detected as a serverless function. No build step required.
+After deploy, set env vars in the Vercel dashboard (`YANDEX_SESSION_ID`, etc.) if you need
+lively voice. Preview deployments are Vercel-auth protected; production is public.
+
+---
+
+## API reference
+
+Base URL: `https://<your-deployment>/`
+
+### `GET /`
+
+Returns a small service descriptor.
+
+### `POST /translate`
+
+Request body:
+
+```json
+{
+  "url": "https://youtu.be/dQw4w9WgXcQ",
+  "sourceLang": "auto",
+  "targetLang": "ru",
+  "lively": false,
+  "directUrl": null,
+  "sessionId": null,
+  "apiToken": null,
+  "wait": false
+}
+```
+
+| Field        | Type    | Default  | Notes                                                                 |
+| ------------ | ------- | -------- | --------------------------------------------------------------------- |
+| `url`        | string  | —        | **Required.** YouTube link or any supported site URL.                 |
+| `sourceLang` | string  | `"auto"` | Source language code (`auto`, `en`, `ru`, `zh`, …).                   |
+| `targetLang` | string  | `"ru"`   | Target language (`ru`, `en`, `kk`).                                   |
+| `lively`     | boolean | `false`  | Use neural "lively" (cloned) voices — requires Yandex auth.           |
+| `directUrl`  | string  | `null`   | Direct `.mp4`/`.webm` link for arbitrary videos (see below).         |
+| `sessionId`  | string  | `null`   | Override Yandex `Session_id` per request.                            |
+| `apiToken`   | string  | `null`   | Override Yandex OAuth token per request.                            |
+| `wait`       | boolean | `false`  | Block up to `POLL_BUDGET_MS` polling for a result (serverless-safe). |
+
+Response (finished):
+
+```json
+{
+  "status": "translated",
+  "audioUrl": "https://vtrans.s3-private.mds.yandex.net/tts/prod/....mp3?X-Amz-...",
+  "translationId": "425832160",
+  "remainingTime": -1
+}
+```
+
+Response (still working — **poll again**):
+
+```json
+{ "status": "waiting", "audioUrl": null, "translationId": "425832160", "remainingTime": 51 }
+```
+
+> **Polling model.** Translations take 30–90s. Serverless platforms (Vercel) time out at
+> ~10s, so a single call cannot block until completion. The API returns `waiting` +
+> `remainingTime`; your client should re-`POST /translate` (same `url`) after that delay
+> until `status: "translated"`. Use `wait: true` only for short jobs.
+
+### `POST /subtitles`
+
+```json
+{ "url": "https://youtu.be/dQw4w9WgXcQ", "sourceLang": "ru" }
+```
+
+Returns `{ waiting, subtitles: [{ language, url, translatedLanguage, translatedUrl }, …] }`.
+
+### Example
+
+```bash
+curl -X POST https://your-app.vercel.app/translate \
+  -H 'content-type: application/json' \
+  -d '{"url":"https://youtu.be/dQw4w9WgXcQ","wait":false}'
+```
+
+---
+
+## Translating **any** video (not just YouTube)
+
+Yandex translates a direct media file, not an HTML page. The API already resolves direct
+links for:
+
+- **YouTube** — fully automatic from the share URL.
+- **Hundreds of known sites** — resolved automatically by the library's site helpers.
+
+For everything else, pass the direct media URL:
+
+```json
+{
+  "url": "https://example.com/page",
+  "directUrl": "https://example.com/path/video.mp4"
+}
+```
+
+The `directUrl` is sent as `translationHelp`, so Yandex fetches and translates that file.
+Once translated, the result is cached and later reachable even without `directUrl`.
+*(Want fully automatic extraction for arbitrary pages? Add a `yt-dlp`-based step — see TODO.)*
+
+---
+
+## Project layout
+
+```
+api/index.js        # Vercel serverless handler (the API)
+lib/client.js       # Yandex client factory (proxy + dispatcher setup)
+server.mjs          # local dev server
+test-translate.mjs  # manual end-to-end test
+```
+
+---
+
+## Credits
+
+Built on [`@vot.js/node`](https://github.com/FOSWLY/vot.js) by the FOSWLY team — an
+unofficial Yandex VOT client. This repo is a thin, deployable wrapper around it.
+
+## License
+
+This project is for research/educational use (see **Rules of use**). Check the license of
+the underlying [`vot.js`](https://github.com/FOSWLY/vot.js) for its terms.
