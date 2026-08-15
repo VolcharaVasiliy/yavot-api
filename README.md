@@ -211,6 +211,13 @@ For everything else, pass the direct media URL:
 
 The `directUrl` is sent as `translationHelp`, so Yandex fetches and translates that file.
 Once translated, the result is cached and later reachable even without `directUrl`.
+
+**Natively supported sites:** ~80 platforms (YouTube, Vimeo, Twitch, VK, OK.ru, Bilibili,
+Dailymotion, Rutube, TikTok/Douyin, Rumble, Facebook, Twitter/X, IMDB, Coursera, Udemy,
+LinkedIn Learning, and many more) are resolved automatically from a plain page URL — see
+[SUPPORTED_SITES.md](./SUPPORTED_SITES.md) for the full list. Additionally, any site that
+[yt-dlp](https://github.com/yt-dlp/yt-dlp) can handle is translatable via `directUrl`.
+
 *(Want fully automatic extraction for arbitrary pages? Add a `yt-dlp`-based step — see TODO.)*
 
 ---
