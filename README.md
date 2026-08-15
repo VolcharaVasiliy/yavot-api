@@ -94,17 +94,11 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID"            # classic voice
 node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone voice
 ```
 
-### Environment variables (`.env`)
+### Configuration
 
-All variables are optional; the Cloudflare deploy page pre-fills them (empty / `null` = not set).
-
-- `YAVOT_PROXY` — HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Unset → direct. Set to `off` to force direct.
-- `YANDEX_SESSION_ID` — `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice.
-- `YANDEX_API_TOKEN` — Yandex OAuth token → enables lively voice (alternative to the cookie). **Not required** when using cookies.
-- `POLL_BUDGET_MS` — max ms the API blocks while polling inside a single request (default `9000`).
-- `RESOLVER_URL` — optional self-hosted media resolver for arbitrary page URLs.
-- `YTDLP_ONLINE` — **enabled by default (`1`)**: turns on the ytdlp.online universal resolver (any site yt-dlp supports). Set to `0`/`false` to disable.
-- `YTDLP_ONLINE_COOKIE` — optional `ytdlp.online` session cookie (`_sid=...`). Paste it on the deploy page if you have one; leave `null` otherwise.
+All settings are optional and have safe defaults — the API works out of the box, and the
+universal resolver (yt-dlp) is enabled by default. Set anything extra only if you need it:
+on Cloudflare via `wrangler secret put <NAME>`, on Vercel via the project dashboard.
 
 ---
 
