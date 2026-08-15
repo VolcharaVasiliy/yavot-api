@@ -137,6 +137,11 @@ Set secrets (optional): `npx wrangler secret put YANDEX_SESSION_ID` and
 `npx wrangler secret put YTDLP_ONLINE_COOKIE`. Enable the universal resolver by adding
 `YTDLP_ONLINE = "1"` under `[vars]` in `wrangler.toml` (or as a secret).
 
+> **One-click deploy note:** the Cloudflare deploy page may show a required
+> `YANDEX_API_TOKEN` field. You don't need it — just type `null` (the literal word) and
+> finish. The code treats `null`/empty as "no token", so translation still works without
+> authentication (lively voice stays off until you set a real token or cookie).
+
 ---
 
 ## API reference
