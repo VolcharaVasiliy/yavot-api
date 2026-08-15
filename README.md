@@ -64,9 +64,10 @@ client ──POST /translate──▶ yavot-api ──protobuf+HMAC──▶ api
 ## Requirements
 
 - **Node.js 18+** (developed on Node 24).
-- For **"lively voice"** (voice cloning): a Yandex account session — either a
-  `Session_id` cookie (from a logged-in Yandex Browser / Chrome export) or an OAuth token
-  from <https://oauth.yandex.ru>.
+- For **"lively voice"** (voice cloning): a Yandex account session. You can take it from
+  <https://id.yandex.ru/> — log in there, then export the `Session_id` cookie from your
+  browser (DevTools → Application → Cookies, or a cookie-export extension) or grab an OAuth
+  token from <https://oauth.yandex.ru>.
 
 ---
 
@@ -98,7 +99,7 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 | Variable             | Default                       | Description                                                        |
 | -------------------- | ----------------------------- | ------------------------------------------------------------------ |
 | `YAVOT_PROXY`        | _(unset → direct)_            | HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Set to `off` to force direct. |
-| `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value → enables lively voice.                  |
+| `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice. |
 | `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
 | `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
 | `RESOLVER_URL`       | _(empty)_                     | Optional media resolver for arbitrary page URLs (see below).       |
