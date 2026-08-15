@@ -96,15 +96,15 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 
 ### Environment variables (`.env`)
 
-| Variable             | Default                       | Description                                                        |
-| -------------------- | ----------------------------- | ------------------------------------------------------------------ |
-| `YAVOT_PROXY`        | _(unset → direct)_            | HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Set to `off` to force direct. |
-| `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice. |
-| `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
-| `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
-| `RESOLVER_URL`       | _(empty)_                     | Optional media resolver for arbitrary page URLs (see below).       |
-| `YTDLP_ONLINE`       | _(empty)_                     | Enable the ytdlp.online universal resolver (any site yt-dlp supports). |
-| `YTDLP_ONLINE_COOKIE`| _(empty)_                     | Optional `ytdlp.online` session cookie (`_sid=...`).              |
+All variables are optional; the Cloudflare deploy page pre-fills them (empty / `null` = not set).
+
+- `YAVOT_PROXY` — HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Unset → direct. Set to `off` to force direct.
+- `YANDEX_SESSION_ID` — `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice.
+- `YANDEX_API_TOKEN` — Yandex OAuth token → enables lively voice (alternative to the cookie). **Not required** when using cookies.
+- `POLL_BUDGET_MS` — max ms the API blocks while polling inside a single request (default `9000`).
+- `RESOLVER_URL` — optional self-hosted media resolver for arbitrary page URLs.
+- `YTDLP_ONLINE` — **enabled by default (`1`)**: turns on the ytdlp.online universal resolver (any site yt-dlp supports). Set to `0`/`false` to disable.
+- `YTDLP_ONLINE_COOKIE` — optional `ytdlp.online` session cookie (`_sid=...`). Paste it on the deploy page if you have one; leave `null` otherwise.
 
 ---
 
@@ -137,10 +137,12 @@ Set secrets (optional): `npx wrangler secret put YANDEX_SESSION_ID` and
 `npx wrangler secret put YTDLP_ONLINE_COOKIE`. Enable the universal resolver by adding
 `YTDLP_ONLINE = "1"` under `[vars]` in `wrangler.toml` (or as a secret).
 
-> **One-click deploy note:** the Cloudflare deploy page may show a required
-> `YANDEX_API_TOKEN` field. You don't need it — just type `null` (the literal word) and
-> finish. The code treats `null`/empty as "no token", so translation still works without
-> authentication (lively voice stays off until you set a real token or cookie).
+> **One-click deploy note:** the Cloudflare deploy page shows a few pre-filled fields.
+> Leave `YANDEX_API_TOKEN` and `YTDLP_ONLINE_COOKIE` as `null` (the literal word) if you
+> don't need them — the code treats `null`/empty as "not set". Translation works without
+> any auth; lively voice turns on once you set `YANDEX_SESSION_ID` (or a real token). The
+> universal resolver (`YTDLP_ONLINE`) is **on by default**, so arbitrary sites work out of
+> the box.
 
 ---
 
