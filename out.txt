@@ -1,0 +1,8 @@
+Requesting translation for https://youtu.be/dQw4w9WgXcQ 
+{
+  "translated": true,
+  "status": 1,
+  "audioUrl": "https://vtrans.s3-private.mds.yandex.net/tts/prod/7c4f7fd3bb644515baccc6a4812d45ec.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=WjGREUc47LBUFZn6pllC%2F20260815%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260815T153106Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=9e57bc618cd3be724db166c51797170939a98d8650d18001487a393c3eb3a906",
+  "translationId": "425832160",
+  "remainingTime": -1
+}
