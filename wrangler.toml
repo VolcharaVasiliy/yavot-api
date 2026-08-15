@@ -3,12 +3,10 @@ main = "worker.mjs"
 compatibility_date = "2025-05-01"
 compatibility_flags = ["nodejs_compat"]
 
-# These are pre-filled (optional) so the Cloudflare deploy page won't force you to
-# enter them. Secrets (YANDEX_SESSION_ID, YTDLP_ONLINE_COOKIE) can also be set via
-# `wrangler secret put <NAME>` instead. Empty / "null" means "not set".
+# Only the fields needed at deploy time are listed here. Everything else
+# (YANDEX_SESSION_ID, YANDEX_API_TOKEN, YAVOT_PROXY, POLL_BUDGET_MS, RESOLVER_URL)
+# is optional and can be set later via `wrangler secret put <NAME>` if you need it.
+# YTDLP_ONLINE_COOKIE: leave "null" if you don't have a ytdlp.online cookie.
 [vars]
-YAVOT_PROXY = "off"
-YANDEX_SESSION_ID = ""
-YANDEX_API_TOKEN = "null"
 YTDLP_ONLINE = "1"
 YTDLP_ONLINE_COOKIE = "null"
