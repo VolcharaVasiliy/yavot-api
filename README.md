@@ -96,15 +96,17 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 
 ### Environment variables (`.env`)
 
-| Variable             | Default                       | Description                                                        |
-| -------------------- | ----------------------------- | ------------------------------------------------------------------ |
-| `YAVOT_PROXY`        | _(unset → direct)_            | HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Set to `off` to force direct. |
-| `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice. |
-| `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
-| `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
-| `RESOLVER_URL`       | _(empty)_                     | Optional media resolver for arbitrary page URLs (see below).       |
-| `YTDLP_ONLINE`       | _(empty)_                     | Enable the ytdlp.online universal resolver (any site yt-dlp supports). |
-| `YTDLP_ONLINE_COOKIE`| _(empty)_                     | Optional `ytdlp.online` session cookie (`_sid=...`).              |
+These are optional unless noted. On Cloudflare they are already declared (empty) in
+`wrangler.toml` so the deploy page will not force you to fill them; set the secret ones via
+`wrangler secret put`.
+
+- `YAVOT_PROXY` — HTTP(S) proxy URL, e.g. `http://127.0.0.1:7897`. Unset → direct. Set to `off` to force direct.
+- `YANDEX_SESSION_ID` — `Session_id` cookie value (take it from <https://id.yandex.ru/>) → enables lively voice.
+- `YANDEX_API_TOKEN` — Yandex OAuth token → enables lively voice (alternative to the cookie). **Not required** when using cookies.
+- `POLL_BUDGET_MS` — max ms the API blocks while polling inside a single request (default `9000`).
+- `RESOLVER_URL` — optional media resolver for arbitrary page URLs (see below).
+- `YTDLP_ONLINE` — set to `1` to enable the ytdlp.online universal resolver (any site yt-dlp supports).
+- `YTDLP_ONLINE_COOKIE` — optional `ytdlp.online` session cookie (`_sid=...`).
 
 ---
 
