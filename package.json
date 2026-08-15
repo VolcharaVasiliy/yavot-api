@@ -9,6 +9,7 @@
     "dev": "node server.mjs"
   },
   "dependencies": {
+    "@vot.js/core": "^3.0.2",
     "@vot.js/node": "^3.0.2"
   }
 }

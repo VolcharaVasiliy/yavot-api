@@ -4,6 +4,10 @@
 
 import { app } from "./lib/app.js";
 
+// Mark the runtime so lib/client.js uses the Worker-compatible (@vot.js/core) path
+// and never loads undici (which needs Node-only globals).
+globalThis.YAVOT_RUNTIME = "worker";
+
 export default {
   async fetch(request, env) {
     if (env) {
