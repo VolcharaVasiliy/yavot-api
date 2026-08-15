@@ -10,3 +10,5 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 YTDLP_ONLINE = "1"
 YTDLP_ONLINE_COOKIE = "null"
+YANDEX_API_TOKEN = "null"
+YANDEX_SESSION_ID = ""
