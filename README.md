@@ -112,6 +112,8 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/VolcharaVasiliy/yavot-api&project-name=yavot-api&env=YANDEX_SESSION_ID,YTDLP_ONLINE,YTDLP_ONLINE_COOKIE&envDescription=Optional%20Yandex%20session%20(for%20lively%20voice)%20and%20ytdlp.online%20resolver%20cookie)
 
+[![Deploy to Cloudflare](https://img.shields.io/badge/Deploy%20to-Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://deploy.workers.cloudflare.com/?url=https://github.com/VolcharaVasiliy/yavot-api)
+
 ### Vercel
 
 ```bash
@@ -124,8 +126,14 @@ if you need them. Preview deployments are Vercel-auth protected; production is p
 ### Cloudflare Workers
 
 This repo ships a Cloudflare Worker (`worker.mjs` + `wrangler.toml`, Node.js compat) that
-reuses the same core as the Vercel deployment. Deploy via the CLI — `wrangler login` opens
-a browser for OAuth (no manual API-token paste, nothing forced):
+reuses the same core as the Vercel deployment.
+
+**One-click (button above):** opens Cloudflare's deploy page, which lists the Worker's
+environment variables. `YANDEX_API_TOKEN` (and others) are **optional** — they're pre-filled
+with empty defaults in `wrangler.toml`, so just leave them blank and finish the deploy
+(no Yandex token needed when you authenticate by cookies).
+
+**CLI (no token paste, browser OAuth):**
 
 ```bash
 npm install
@@ -140,8 +148,8 @@ npx wrangler secret put YANDEX_SESSION_ID   # value = your Session_id cookie
 npx wrangler secret put YTDLP_ONLINE_COOKIE  # optional ytdlp.online _sid
 ```
 
-Enable the universal resolver by adding `YTDLP_ONLINE = "1"` under `[vars]` in
-`wrangler.toml` (or as a secret). `YANDEX_API_TOKEN` is **not** required when using cookies.
+`YANDEX_API_TOKEN` is **not** required when using cookies. The universal resolver is enabled
+by setting `YTDLP_ONLINE = "1"` under `[vars]` in `wrangler.toml` (or as a secret).
 
 ---
 
