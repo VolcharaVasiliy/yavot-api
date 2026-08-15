@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "yavot-api" generated at 2026-08-15T16:48:20.286Z.

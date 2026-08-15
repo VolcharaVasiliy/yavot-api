@@ -1,0 +1,10 @@
+name = "yavot-api"
+main = "worker.mjs"
+compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Optional: set non-secret defaults here. Secrets (YANDEX_SESSION_ID, YTDLP_ONLINE_COOKIE)
+# should be added via `wrangler secret put <NAME>` instead.
+[vars]
+YAVOT_PROXY = "off"
+# YTDLP_ONLINE = "1"
