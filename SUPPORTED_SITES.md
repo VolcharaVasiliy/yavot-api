@@ -8,6 +8,14 @@ page URL. For every site below, you only need to pass the page/video link to `PO
 > **YouTube** and any direct `.mp4` / `.webm` link work out of the box (no helper needed).
 > **Any other site** can still be translated by passing a `directUrl` (see README).
 
+### Universal coverage via the ytdlp.online resolver
+
+With `YTDLP_ONLINE=1` set (see README), **every site that
+[yt-dlp](https://github.com/yt-dlp/yt-dlp) supports** is translatable from a bare page URL —
+no `directUrl` required. The API reverse-engineered `ytdlp.online` (`/api/v1/stream`) to extract
+a re-hosted media URL that Yandex fetches directly. This effectively extends coverage to the
+entire yt-dlp ecosystem (thousands of sites), on top of the ~80 native helpers listed below.
+
 ## Natively supported (dedicated helpers)
 
 - **appledeveloper** — https://developer.apple.com/
