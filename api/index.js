@@ -1,6 +1,7 @@
 import VOTClient from "@vot.js/node";
 import { getVideoData } from "@vot.js/node/utils/videoData";
 import { makeClient } from "../lib/client.js";
+import { resolveMediaUrl } from "../lib/resolver.js";
 
 const DEFAULT_REQ_LANG = "auto";
 const DEFAULT_RES_LANG = "ru";
@@ -111,9 +112,37 @@ export default async function handler(req, res) {
 
   const envSession = sessionId || process.env.YANDEX_SESSION_ID;
   const envToken = apiToken || process.env.YANDEX_API_TOKEN;
+  const resolverUrl = process.env.RESOLVER_URL || "";
 
   try {
-    const videoData = await resolveVideoData(url, directUrl);
+    // Auto-resolve a direct media URL for arbitrary (non-YouTube, non-direct) pages,
+    // so the caller only needs to pass a plain page URL. Skipped when directUrl is
+    // already given or the input is natively supported (YouTube). Requires RESOLVER_URL.
+    let effectiveDirect = directUrl;
+    if (!effectiveDirect) {
+      let isDirect = false;
+      let isYouTube = false;
+      try {
+        const u = new URL(url);
+        isDirect = /\.(mp4|webm|m3u8)(\?|$|#)/i.test(u.pathname);
+        isYouTube = /(^|\.)youtu\.?be(\.|$)/.test(u.hostname);
+      } catch {
+        /* invalid URL handled later by getVideoData */
+      }
+      if (!isDirect && !isYouTube && resolverUrl) {
+        try {
+          effectiveDirect = await resolveMediaUrl(url, { resolverUrl });
+        } catch (e) {
+          return json(res, 502, {
+            error: "Media resolution failed",
+            detail: String(e.message || e),
+            hint: "Pass 'directUrl' explicitly, or ensure RESOLVER_URL is reachable.",
+          });
+        }
+      }
+    }
+
+    const videoData = await resolveVideoData(url, effectiveDirect);
     const client = makeClient({ sessionId: envSession, apiToken: envToken });
 
     if (ep === "subtitles") {
@@ -132,9 +161,9 @@ export default async function handler(req, res) {
       requestLang: sourceLang,
       responseLang: targetLang,
     };
-    if (directUrl) {
+    if (effectiveDirect) {
       opts.translationHelp = [
-        { target: "video_file_url", targetUrl: directUrl },
+        { target: "video_file_url", targetUrl: effectiveDirect },
       ];
     }
     if (lively) {

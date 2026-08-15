@@ -101,6 +101,7 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 | `YANDEX_SESSION_ID`  | _(empty)_                     | `Session_id` cookie value → enables lively voice.                  |
 | `YANDEX_API_TOKEN`   | _(empty)_                     | Yandex OAuth token → enables lively voice (alternative to cookie). |
 | `POLL_BUDGET_MS`     | `9000`                        | Max ms the API blocks while polling inside a single request.       |
+| `RESOLVER_URL`       | _(empty)_                     | Optional media resolver for arbitrary page URLs (see below).       |
 
 ---
 
@@ -212,13 +213,26 @@ For everything else, pass the direct media URL:
 The `directUrl` is sent as `translationHelp`, so Yandex fetches and translates that file.
 Once translated, the result is cached and later reachable even without `directUrl`.
 
+**Auto-extraction for arbitrary pages.** Set `RESOLVER_URL` to a media-resolver service and
+the API will automatically resolve a direct media URL from *any* page URL — no `directUrl`
+needed. The resolver contract is simple: `POST { "url": "<page>" }` → `{ "url": "<media>" }`
+(Cobalt-compatible). A ready-to-self-host resolver is included:
+
+```bash
+# on any VPS / Docker host with yt-dlp installed:
+node resolver/server.mjs          # listens on :8787
+# then on the API side:
+RESOLVER_URL=http://<your-host>:8787
+```
+
+This keeps `yavot-api` itself thin (and serverless-friendly) while offloading the heavy
+`yt-dlp` work to a separate host you control.
+
 **Natively supported sites:** ~80 platforms (YouTube, Vimeo, Twitch, VK, OK.ru, Bilibili,
 Dailymotion, Rutube, TikTok/Douyin, Rumble, Facebook, Twitter/X, IMDB, Coursera, Udemy,
 LinkedIn Learning, and many more) are resolved automatically from a plain page URL — see
 [SUPPORTED_SITES.md](./SUPPORTED_SITES.md) for the full list. Additionally, any site that
-[yt-dlp](https://github.com/yt-dlp/yt-dlp) can handle is translatable via `directUrl`.
-
-*(Want fully automatic extraction for arbitrary pages? Add a `yt-dlp`-based step — see TODO.)*
+[yt-dlp](https://github.com/yt-dlp/yt-dlp) can handle works via the resolver above.
 
 ---
 
