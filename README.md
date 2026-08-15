@@ -112,8 +112,6 @@ node test-translate.mjs "https://youtu.be/VIDEO_ID" lively     # lively/clone vo
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/VolcharaVasiliy/yavot-api&project-name=yavot-api&env=YANDEX_SESSION_ID,YTDLP_ONLINE,YTDLP_ONLINE_COOKIE&envDescription=Optional%20Yandex%20session%20(for%20lively%20voice)%20and%20ytdlp.online%20resolver%20cookie)
 
-[![Deploy to Cloudflare](https://img.shields.io/badge/Deploy%20to-Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://deploy.workers.cloudflare.com/?url=https://github.com/VolcharaVasiliy/yavot-api)
-
 ### Vercel
 
 ```bash
@@ -126,16 +124,24 @@ if you need them. Preview deployments are Vercel-auth protected; production is p
 ### Cloudflare Workers
 
 This repo ships a Cloudflare Worker (`worker.mjs` + `wrangler.toml`, Node.js compat) that
-reuses the same core as the Vercel deployment. Use the one-click button above, or:
+reuses the same core as the Vercel deployment. Deploy via the CLI — `wrangler login` opens
+a browser for OAuth (no manual API-token paste, nothing forced):
 
 ```bash
 npm install
+npx wrangler login      # one-time browser auth
 npx wrangler deploy
 ```
 
-Set secrets (optional): `npx wrangler secret put YANDEX_SESSION_ID` and
-`npx wrangler secret put YTDLP_ONLINE_COOKIE`. Enable the universal resolver by adding
-`YTDLP_ONLINE = "1"` under `[vars]` in `wrangler.toml` (or as a secret).
+Set secrets (optional, for lively voice / resolver):
+
+```bash
+npx wrangler secret put YANDEX_SESSION_ID   # value = your Session_id cookie
+npx wrangler secret put YTDLP_ONLINE_COOKIE  # optional ytdlp.online _sid
+```
+
+Enable the universal resolver by adding `YTDLP_ONLINE = "1"` under `[vars]` in
+`wrangler.toml` (or as a secret). `YANDEX_API_TOKEN` is **not** required when using cookies.
 
 ---
 
